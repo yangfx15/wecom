@@ -1,0 +1,41 @@
+version: '3.4'
+
+# service公共配置
+x-defaults: &defaults
+  # 容器重启模式
+  restart: unless-stopped
+  shm_size: '2G'
+  # 公共环境变量
+  environment:
+    #应用启动需要的配置参数按照此格式从环境变量获取，其中"${变量名}"会在启动之前进行替换
+    - USER_ID=1010
+    - GROUP_ID=1010
+
+services:
+  wecom:
+    image: wecom:v1
+    hostname: wecom
+    container_name: wecom
+    privileged: true
+    <<: *defaults
+    volumes:
+      - /data/wecom/logs:/app/logs
+    ports:
+      - 80:80
+    command: >
+      -etcd1=172.16.30.39:2379
+      -etcd2=172.16.30.39:2479
+      -etcd3=172.16.30.39:2579
+      -db_ip=172.16.30.39
+      -db_port=3306
+      -db_username=root
+      -db_password=uWXf87plmQGz8zMM
+      -debug_mode=false
+      -log=/app/logs/wecom.log
+      -log_level=DEBUG
+    networks:
+      - default_bridge
+
+networks:
+  default_bridge:
+    external: true
